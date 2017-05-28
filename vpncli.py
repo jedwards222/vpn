@@ -38,10 +38,12 @@ fakenet.configure_tap(ifname)
 
 
 # Process packets going to the tunnel interface
+
 while 1:
+    readable, writable, exceptional = select.select(inputs, outputs, inputs)
 
     # Get packet from kernel or from server connection that we need to modify/process
-    binary_packet = os.read(tun, )
+    binary_packet = os.read(tun, 2048)
 
 
 
