@@ -3,50 +3,47 @@
 # James Edwards, Rick Dionne, Willy Wolfe
 # May 2017
 
-# Imports
 from scapy.all import * # scapy commands
+import os               # os.write, os.read
+import pytun            # pytun.open
+import fakenet          # fakenet.configure_tun
+import socket           # socket.socket, socket.connect
+# import struct           
 
-import os       # for os.write, os.read
-import pytun
-import fakenet
-import socket   # for socket.socket, socket.connect
-import struct
-
-#check to see if a tun iface exists
+# Check to see if a tun iface exists
 iname = 'tun0'
 ifacelist = os.listdir('/sys/class/net/')
 if not(iname in ifacelist):
-    print "please create a tun0 interface using openvpn"
+    print("please create a tun0 interface using openvpn")
 
-'''
-Set up connection to the VPN server
-'''
+#######################################
+# Set up connection to the VPN server #
+#######################################
 # Create Socket
-socket_family = AF_INET
-socket_type = SOCK_STREAM
-s = socket.socket (socket_family, socket_type, protocol=0)
+socket_family = socket.AF_INET
+socket_type = socket.SOCK_STREAM
+s = socket.socket (socket_family, socket_type, 0)
 # Connect to server
 hostname = "flume.cs.dartmouth.edu"
 port = 8080
-s.connect(hostname, port)
+s.connect((hostname, port))
 # Server will send your IP address
 newip = s.recv(2048)
-set_gw_ip(socket.inet_ntop(AF_INET,newip)
+set_gw_ip(socket.inet_ntop(AF_INET,newip))
 
-'''
-Set up tunnel - based on Sergey's pong.py
-'''
+#############################################
+# Set up tunnel - based on Sergey's pong.py #
+#############################################
 # 1. Open tunnel
 tun, ifname = pytun.open('tun0')
 # 2. Configure tunnel interface
-print "Allocated interface %s. Configuring it." % ifname
-fakenet.configure_tap(ifname)
+print ("Allocated interface " + str(ifname) + ". Configuring it.")
+fakenet.configure_tun(ifname)
 
-'''
-Process packets going to the tunnel interface
-'''
+#################################################
+# Process packets going to the tunnel interface #
+#################################################
 rlist = [tun,s]
-
 while 1:
     readable, writable, exceptional = select.select(rlist, [], [])
     for r in readable:
