@@ -7,28 +7,16 @@
 from scapy.all import * # scapy commands
 
 import os       # for os.write, os.read
-
 import pytun
 import fakenet
-
 import socket   # for socket.socket, socket.connect
-
-iname = 'tun0'
+import struct
 
 #check to see if a tun iface exists
+iname = 'tun0'
 ifacelist = os.listdir('/sys/class/net/')
 if not(iname in ifacelist):
     print "please create a tun0 interface using openvpn"
-
-
-'''
-Set up tunnel - based on Sergey's pong.py
-'''
-# 1. Open tunnel
-tun, ifname = pytun.open('tun0')
-# 2. Configure tunnel interface
-print "Allocated interface %s. Configuring it." % ifname
-fakenet.configure_tap(ifname)
 
 '''
 Set up connection to the VPN server
@@ -41,6 +29,18 @@ s = socket.socket (socket_family, socket_type, protocol=0)
 hostname = "flume.cs.dartmouth.edu"
 port = 8080
 s.connect(hostname, port)
+# Server will send your IP address
+data = s.recv(2048)
+set_gw_ip(socket.inet_ntoa(struct.pack('!L', data)))
+
+'''
+Set up tunnel - based on Sergey's pong.py
+'''
+# 1. Open tunnel
+tun, ifname = pytun.open('tun0')
+# 2. Configure tunnel interface
+print "Allocated interface %s. Configuring it." % ifname
+fakenet.configure_tap(ifname)
 
 '''
 Process packets going to the tunnel interface
@@ -56,7 +56,6 @@ while 1:
         if r == s:          # Packet is from server, so pass on to host
             data = s.recv(2048)
             os.write(tun,IP(data))
-
 
 # Close the socket connection when exiting - this should maybe go elsewhere
 s.close
