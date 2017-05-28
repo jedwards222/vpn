@@ -25,7 +25,8 @@ IP_MAXPACKET = 65535
 def main():
     server_socket = init_tcp_socket() # init socket, set to listen
     read_list = [server_socket]       # list of open sockets
-    client_dict = {}                  # dict mapping fileno:local_addr_string
+    sock2addr = {}                    # dict mapping fileno:addr_string
+    addr2sock = {}                    # dict mapping addr_string:fileno
     avail = 2
     while True: # loop indefinitely
         # wait for incoming packet on any connection
@@ -35,14 +36,23 @@ def main():
                 client_socket, address = server_socket.accept() # accept
                 read_list.append(client_socket)                 # add to list
                 # set up a VM address associated with this client connection
-                client_addr, avail = client_setup(address, avail, sock)
-                client_dict[client_addr] = client_socket.fileno()                
+                client_addr, avail = client_setup(avail, client_socket)
+                sock2addr[client_socket.fileno()] = client_addr
+                addr2sock[client_addr] = client_socket
+                print "new connection on socket %d, assigning addr %s" % (
+                        client_socket.fileno(), client_addr
+                      )
             else:
-                data = sock.recv(IP_MAXPACKET) # get packet from client 
+                data = sock.recv(IP_MAXPACKET) # get packet from client
                 if data:
-                    process_packet(data, client_dict, client_socket): # handle packet     
-                else: 
-                    del client_dict[sock] # remove from client dict
+                    print "got packet from %s" % sock2addr[sock.fileno()]
+                    process_packet(data, sock2addr, addr2sock, sock) # handle packet     
+                else:
+                    print "closing connection with %s" % sock2addr[sock.fileno()]
+                    # remove from maps
+                    addr = sock2addr[sock.fileno()]
+                    del sock2addr[sock.fileno()]
+                    del addr2sock[addr]                    
                     sock.close()                   # close this connection
                     read_list.remove(sock)         # remove from read_list
 
@@ -54,33 +64,44 @@ def init_tcp_socket(port=PORT):
     print "server_socket listening on port %d" % port
     return sock
 
-def client_setup(address, avail, sock):
+def client_setup(avail, sock):
     client_addr = NET_PREFIX + str(avail)
-    sock.send(socket.htonl(socket.inet_pton(AF_INET, client_addr)))
+    addr_num = socket.inet_pton(socket.AF_INET, client_addr)
+    sock.send(addr_num)
     return client_addr, avail+1
 
-def process_packet(data, client_dict, client_socket):
-    packet = IP(data)
+def process_packet(data, sock2addr, addr2sock, client_socket):
+    packet = IP(data) # may fail
     dst_addr = packet[IP].dst
-    for addr in client_dict.keys():
-        if addr == dst_addr:
-            if addr == MY_ADDR:
-                handle_ping(data, client_socket)
-            else:
-                route_packet(data, client_dict[addr])
+    if dst_addr in addr2sock:
+        sock = addr2sock[dst_addr]
+        if dst_addr == MY_ADDR:
+            print " packet intended for server, handling"
+            handle_ping(data, client_socket)
+        else:
+            print " packet intended for %s, routing" % dst_addr
+            route_packet(data, sock, dst_addr)
+    else:
+        print "addr %s not in network, ignoring" % dst_addr
 
-def handle_ping(data, client_socket):
-    packet = IP(data)
+def handle_ping(data, sock):
+    packet = IP(data) # may fail
     if packet.haslayer(ICMP) and packet[ICMP] == 8:
+        print "  packet is ICMP echo-request, replying"
         pong = packet.copy()
         swap_src_and_dst(pong, IP)
         pong[ICMP].type='echo-reply'
         pong[ICMP].chksum = None   # force recalculation
         pong[IP].chksum   = None
-        client_socket.send(pong.build())
+        sock.send(pong.build())
+    else:
+        print "  packet data not recognized, printing"
+        data_hex = ' '.join("{:02x}".format(ord(c)) for c in data)
+        print data_hex
 
-def route_packet(data, socket):
-    socket.send(data)          
+def route_packet(data, sock, dst_addr):
+    print "  packet routed to %s on socket %d" % (dst_addr, sock)
+    sock.send(data)
 
 if __name__ == "__main__":
     main()
