@@ -47,10 +47,17 @@ s.connect(hostname, port)
 
 
 # Process packets going to the tunnel interface
+rlist = [tun,s]
 
 while 1:
-    readable, writable, exceptional = select.select(inputs, outputs, inputs)
-
+    readable, writable, exceptional = select.select(rlist, [], [])
+    for r in readable:
+        if r == tun:
+            binary_packet = os.read(tun, 2048)
+            r.send(binary_packet)
+        if r == s:
+            data = r.recv(2048)
+            os.write(tun,IP(data))
     # Get packet from kernel or from server connection that we need to modify/process
     binary_packet = os.read(tun, 2048)
 
