@@ -8,9 +8,9 @@
 
 1. [TUN, with links to scapy examples](http://www.cs.dartmouth.edu/~sergey/netreads/task3.txt)
 
-2. [Setting up Raspberry Pi](https://readwrite.com/2014/04/10/raspberry-pi-vpn-tutorial-server-secure-web-browsing/)
+2. [Example of opening TUN connection in python on Linux (lines 41-62](https://github.com/sergeybratus/netfluke/blob/master/pytap.py)
 
-3. [Background on Raspberry Pi](https://readwrite.com/2014/01/20/raspberry-pi-everything-you-need-to-know/#awesm=~oAXq5lJMAsSfOR)
+3. [Example of editing packets](https://github.com/sergeybratus/netfluke/blob/master/pong.py)
 
 4. [Lecture 14 Notes including tunnelling](http://www.cs.dartmouth.edu/~sergey/cs60/l14.txt)
 
