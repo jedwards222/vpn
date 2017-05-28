@@ -42,38 +42,21 @@ hostname = "flume.cs.dartmouth.edu"
 port = 8080
 s.connect(hostname, port)
 
-
-# Define any other helper functions
-
-
-# Process packets going to the tunnel interface
+'''
+Process packets going to the tunnel interface
+'''
 rlist = [tun,s]
 
 while 1:
     readable, writable, exceptional = select.select(rlist, [], [])
     for r in readable:
-        if r == tun:
+        if r == tun:        # Packet is from host, so send it
             binary_packet = os.read(tun, 2048)
-            r.send(binary_packet)
-        if r == s:
-            data = r.recv(2048)
+            s.send(binary_packet)
+        if r == s:          # Packet is from server, so pass on to host
+            data = s.recv(2048)
             os.write(tun,IP(data))
-    # Get packet from kernel or from server connection that we need to modify/process
-    binary_packet = os.read(tun, 2048)
 
-
-
-    # Check whether the packet we just read is from our own host, or from the server
-
-    # If from Server:
-       # Unwrap the packet
-
-       # os.write it so the host machine's user can see the reply
-
-    # If from Client:
-        # Modify the packet before sending
-
-        # Send the packet to the server
 
 # Close the socket connection when exiting - this should maybe go elsewhere
 s.close
