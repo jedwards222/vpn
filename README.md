@@ -22,5 +22,18 @@ The code is all written in Python, so compilation is unnecessary. To run the ser
 
 ### Testing
 
+Testing involves starting the server on `flume.cs.dartmouth.edu`, and running the client program on at least two separate hosts. The test strategy we implemented is as follows:
+
+1. Start VPN server by running `vpnserv.py` on `flume.cs.dartmouth.edu`.
+
+2. Start VPN Client on first host.
+
+3. Run test script on second host.
 
 ### Assumptions and Limitations
+
+1. We did not implement security or encryption of any kind.
+
+2. The client hosts must have root privilege.
+
+3. The client hosts must have scapy installed.
