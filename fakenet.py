@@ -5,7 +5,7 @@
 #  Code adopted from Sergey's example
 #
 
-import subprocess 
+import subprocess
 import re           # for matching out MAC
 import pytun
 
@@ -44,10 +44,13 @@ def configure_tun(ifname):
 
 def fake_mac_for_ip(ip):
     s1, s2, s3, s4 = ip.split('.')
-    return BASE_MAC + ("%02x" % int(s4))  
+    return BASE_MAC + ("%02x" % int(s4))
 
 def get_gw_ip():
     return GW_IP
+
+def set_gw_ip(newIP):
+    GW_IP = newIP
 
 def get_fake_mac(iface):
     out=subprocess.check_output( "ifconfig " + iface, shell=True)
