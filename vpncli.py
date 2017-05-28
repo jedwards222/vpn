@@ -11,11 +11,7 @@ import os       # for os.write, os.read
 import pytun
 import fakenet
 
-
-#function to swap ip src and dst
-def swap_src_and_dst(pkt, layer):
-  pkt[layer].dst, pkt[layer].src = pkt[layer].src, pkt[layer].dst
-
+import socket   # for socket.socket, socket.connect
 
 iname = 'tun0'
 
@@ -25,13 +21,26 @@ if not(iname in ifacelist):
     print "please create a tun0 interface using openvpn"
 
 
-# Set up tunnel (potentially see Sergey's pytab.open(tap0) - lines 15-17 of pong.py
+'''
+Set up tunnel - based on Sergey's pong.py
+'''
 # 1. Open tunnel
 tun, ifname = pytun.open('tun0')
 # 2. Configure tunnel interface
 print "Allocated interface %s. Configuring it." % ifname
 fakenet.configure_tap(ifname)
 
+'''
+Set up connection to the VPN server
+'''
+# Create Socket
+socket_family = AF_INET
+socket_type = SOCK_STREAM
+s = socket.socket (socket_family, socket_type, protocol=0)
+# Connect to server
+hostname = "flume.cs.dartmouth.edu"
+port = 8080
+s.connect(hostname, port)
 
 
 # Define any other helper functions
@@ -56,6 +65,8 @@ while 1:
 
     # If from Client:
         # Modify the packet before sending
-    
+
         # Send the packet to the server
-        
+
+# Close the socket connection when exiting - this should maybe go elsewhere
+s.close
