@@ -7,7 +7,7 @@
 
 import subprocess 
 import re           # for matching out MAC
-import pytap
+import pytun
 
 #
 #   This interface will be the "gateway" into the fake network

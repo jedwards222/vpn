@@ -8,6 +8,9 @@ from scapy.all import * # scapy commands
 
 import os       # for os.write, os.read
 
+import pytun
+import fakenet
+
 # Set up tunnel (potentially see Sergey's pytab.open(tap0) - lines 15-17 of pong.py
 # 1. Open tunnel
 
