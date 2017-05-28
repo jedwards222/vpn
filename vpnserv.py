@@ -67,7 +67,9 @@ def init_tcp_socket(port=PORT):
 def client_setup(avail, sock):
     client_addr = NET_PREFIX + str(avail)
     addr_num = socket.inet_pton(socket.AF_INET, client_addr)
-    sock.send(addr_num)
+    print " sending %s" % ' '.join("{:02x}".format(ord(c)) for c in addr_num)
+    n = sock.send(addr_num)
+    print " sent %d bytes" % n
     return client_addr, avail+1
 
 def process_packet(data, sock2addr, addr2sock, client_socket):
@@ -101,7 +103,8 @@ def handle_ping(data, sock):
 
 def route_packet(data, sock, dst_addr):
     print "  packet routed to %s on socket %d" % (dst_addr, sock)
-    sock.send(data)
+    n = sock.send(data)
+    print "  sent %d bytes" % n
 
 if __name__ == "__main__":
     main()
