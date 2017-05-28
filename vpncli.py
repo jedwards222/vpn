@@ -30,8 +30,8 @@ hostname = "flume.cs.dartmouth.edu"
 port = 8080
 s.connect(hostname, port)
 # Server will send your IP address
-data = s.recv(2048)
-set_gw_ip(socket.inet_ntoa(struct.pack('!L', data)))
+newip = s.recv(2048)
+set_gw_ip(socket.inet_ntop(AF_INET,newip)
 
 '''
 Set up tunnel - based on Sergey's pong.py
