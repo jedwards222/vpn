@@ -8,6 +8,7 @@
 import socket
 import select
 import struct
+from scapy.all import *
 
 HOST = ''    # symbolic name meaning all available interfaces
 PORT = 8080  # known port for VPN traffic
@@ -34,7 +35,7 @@ def main():
                 client_socket, address = server_socket.accept() # accept
                 read_list.append(client_socket)                 # add to list
                 # set up a VM address associated with this client connection
-                client_addr, avail = client_setup(address, avail)
+                client_addr, avail = client_setup(address, avail, sock)
                 client_dict[client_addr] = client_socket.fileno()                
             else:
                 data = sock.recv(IP_MAXPACKET) # get packet from client 
@@ -53,25 +54,26 @@ def init_tcp_socket(port=PORT):
     print "server_socket listening on port %d" % port
     return sock
 
-def client_setup(address, avail):
-    return NET_PREFIX + str(avail), avail+1
+def client_setup(address, avail, sock):
+    client_addr = NET_PREFIX + str(avail)
+    sock.send(socket.htonl(socket.inet_pton(AF_INET, client_addr)))
+    return client_addr, avail+1
 
 def process_packet(data, client_dict):
-    dst_string = data[128:160]
-    dst_num = socket.ntohl(struct.unpack("<L", dst_string)[0])
-    dst_addr = socket.ntop(AF_INET, dst_num)
+    packet = IP(data)
+    dst_addr = packet[IP].dst
     for addr in client_dict.keys():
         if addr == dst_addr:
             if addr == MY_ADDR:
-                print_data(data)
+                handle_ping(data)
             else:
                 route_packet(data, client_dict[addr])
 
-def print_data(data):
-    print "temp, awaiting Scapy to extract data"
+def handle_ping(data):
+    return
 
 def route_packet(data, socket):
-    socket.send(data)            
+    socket.send(data)          
 
 if __name__ == "__main__":
     main()
