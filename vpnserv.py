@@ -40,7 +40,7 @@ def main():
             else:
                 data = sock.recv(IP_MAXPACKET) # get packet from client 
                 if data:
-                    process_packet(data, client_dict): # handle packet     
+                    process_packet(data, client_dict, client_socket): # handle packet     
                 else: 
                     del client_dict[sock] # remove from client dict
                     sock.close()                   # close this connection
@@ -59,18 +59,25 @@ def client_setup(address, avail, sock):
     sock.send(socket.htonl(socket.inet_pton(AF_INET, client_addr)))
     return client_addr, avail+1
 
-def process_packet(data, client_dict):
+def process_packet(data, client_dict, client_socket):
     packet = IP(data)
     dst_addr = packet[IP].dst
     for addr in client_dict.keys():
         if addr == dst_addr:
             if addr == MY_ADDR:
-                handle_ping(data)
+                handle_ping(data, client_socket)
             else:
                 route_packet(data, client_dict[addr])
 
-def handle_ping(data):
-    return
+def handle_ping(data, client_socket):
+    packet = IP(data)
+    if packet.haslayer(ICMP) and packet[ICMP] == 8:
+        pong = packet.copy()
+        swap_src_and_dst(pong, IP)
+        pong[ICMP].type='echo-reply'
+        pong[ICMP].chksum = None   # force recalculation
+        pong[IP].chksum   = None
+        client_socket.send(pong.build())
 
 def route_packet(data, socket):
     socket.send(data)          
