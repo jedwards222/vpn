@@ -39,7 +39,7 @@ def configure_iface(ifname, ether, ip, netmask = '255.255.255.0', bcast = ''):
 
 #  Configure given tap device to be on the fake network
 #
-def configure_tap(ifname):
+def configure_tun(ifname):
     configure_iface(ifname, GW_MAC, GW_IP)
 
 def fake_mac_for_ip(ip):

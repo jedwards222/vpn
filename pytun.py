@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-#
+#  
+#  Adopted from Sergey's pytap example
 #  Methods to create and configure a TUN interface in pure python. 
 #
 
