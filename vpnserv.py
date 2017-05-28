@@ -5,19 +5,9 @@
 # James Edwards, Rick Dionne, Willy Wolfe
 # May 2017
 
-# PSEUDOCODE
-# 
-# 1. setup_socket(port = 8080)
-# 2. while (true)
-# 3.    data = read_socket()
-# 4.    if (data.len > 0)
-# 5.    resp = parse_socket()
-# 6.    send_resp(resp)
-#
-
-
 import socket
 import select
+import struct
 
 HOST = ''    # symbolic name meaning all available interfaces
 PORT = 8080  # known port for VPN traffic
@@ -41,32 +31,47 @@ def main():
         readable, writable, errored = select.select(read_list, [], [])
         for sock in readable:
             if sock == server_socket: # new connection
-                client_socket, address = server_socket.accept()     # accept connnection
-                read_list.append(client_socket)                     # add to list
+                client_socket, address = server_socket.accept() # accept
+                read_list.append(client_socket)                 # add to list
                 # set up a VM address associated with this client connection
-                client_dict[sock.fileno()], avail = client_setup(address, avail) 
+                client_addr, avail = client_setup(address, avail)
+                client_dict[client_addr] = client_socket.fileno()                
             else:
                 data = sock.recv(IP_MAXPACKET) # get packet from client 
                 if data:
-                    process_packet(data, client_list) # handle packet
+                    process_packet(data, client_dict): # handle packet     
                 else: 
-                    del client_dict[sock.fileno()] # remove from client dict
+                    del client_dict[sock] # remove from client dict
                     sock.close()                   # close this connection
                     read_list.remove(sock)         # remove from read_list
 
 def init_tcp_socket(port=PORT):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # create the socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # create socket
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # skip timeout
-    sock.bind((HOST, port))                                      # bind to a port
-    sock.listen(BKLG)                                          # set port to listen
+    sock.bind((HOST, port))                                    # bind to port
+    sock.listen(BKLG)                                          # set to listen
     print "server_socket listening on port %d" % port
     return sock
 
 def client_setup(address, avail):
     return NET_PREFIX + str(avail), avail+1
 
-def process_packet(data, client_list):
-    return
+def process_packet(data, client_dict):
+    dst_string = data[128:160]
+    dst_num = socket.ntohl(struct.unpack("<L", dst_string)[0])
+    dst_addr = socket.ntop(AF_INET, dst_num)
+    for addr in client_dict.keys():
+        if addr == dst_addr:
+            if addr == MY_ADDR:
+                print_data(data)
+            else:
+                route_packet(data, client_dict[addr])
+
+def print_data(data):
+    print "temp, awaiting Scapy to extract data"
+
+def route_packet(data, socket):
+    socket.send(data)            
 
 if __name__ == "__main__":
     main()
