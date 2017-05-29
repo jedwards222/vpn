@@ -8,10 +8,10 @@
 import socket
 import select
 import struct
-from scapy.all import *
+import scapy.all
 
 HOST = ''    # symbolic name meaning all available interfaces
-PORT = 8080  # known port for VPN traffic
+PORT = 5000  # known port for VPN traffic
 BKLG = 5     # length of backlog for pending connections on socket
 
 # VPN address of server.
@@ -25,8 +25,8 @@ IP_MAXPACKET = 65535
 def main():
     server_socket = init_tcp_socket() # init socket, set to listen
     read_list = [server_socket]       # list of open sockets
-    sock2addr = {}                    # dict mapping fileno:addr_string
-    addr2sock = {}                    # dict mapping addr_string:fileno
+    sock2addr = {server_socket.fileno():MY_ADDR}                    # dict mapping fileno:addr_string
+    addr2sock = {MY_ADDR:server_socket}                    # dict mapping addr_string:fileno
     avail = 2
     while True: # loop indefinitely
         # wait for incoming packet on any connection
@@ -73,28 +73,31 @@ def client_setup(avail, sock):
     return client_addr, avail+1
 
 def process_packet(data, sock2addr, addr2sock, client_socket):
-    packet = IP(data) # may fail
-    dst_addr = packet[IP].dst
-    if dst_addr in addr2sock:
-        sock = addr2sock[dst_addr]
-        if dst_addr == MY_ADDR:
-            print " packet intended for server, handling"
-            handle_ping(data, client_socket)
-        else:
-            print " packet intended for %s, routing" % dst_addr
-            route_packet(data, sock, dst_addr)
+    #print "received packet\n%s" % ' '.join("{:02x}".format(ord(c)) for c in data)
+    packet = scapy.all.IP(data) # may fail
+    dst_addr = packet[scapy.all.IP].dst
+    if dst_addr == MY_ADDR:
+        print " packet intended for server, handling"
+        handle_ping(data, client_socket)
     else:
-        print "addr %s not in network, ignoring" % dst_addr
+	if dst_addr in addr2sock:
+		sock = addr2sock[dst_addr]
+            	print " packet intended for %s, routing" % dst_addr
+            	route_packet(data, sock, dst_addr)
+    	else:
+       		 print "addr %s not in network, ignoring" % dst_addr
 
 def handle_ping(data, sock):
-    packet = IP(data) # may fail
-    if packet.haslayer(ICMP) and packet[ICMP] == 8:
+    packet = scapy.all.IP(data) # may fail
+    # print packet.summary()
+    print "%r, %d" % (packet.haslayer(scapy.all.ICMP), packet[scapy.all.ICMP].type)
+    if packet.haslayer(scapy.all.ICMP) and packet[scapy.all.ICMP].type == 8:
         print "  packet is ICMP echo-request, replying"
         pong = packet.copy()
-        swap_src_and_dst(pong, IP)
-        pong[ICMP].type='echo-reply'
-        pong[ICMP].chksum = None   # force recalculation
-        pong[IP].chksum   = None
+	pong[scapy.all.IP].dst, pong[scapy.all.IP].src = pong[scapy.all.IP].src, pong[scapy.all.IP].dst
+        pong[scapy.all.ICMP].type='echo-reply'
+        pong[scapy.all.ICMP].chksum = None   # force recalculation
+        pong[scapy.all.IP].chksum   = None
         sock.send(pong.build())
     else:
         print "  packet data not recognized, printing"
@@ -102,7 +105,7 @@ def handle_ping(data, sock):
         print data_hex
 
 def route_packet(data, sock, dst_addr):
-    print "  packet routed to %s on socket %d" % (dst_addr, sock)
+    print "  packet routed to %s on socket %d" % (dst_addr, sock.fileno())
     n = sock.send(data)
     print "  sent %d bytes" % n
 
