@@ -18,16 +18,10 @@ TUNSETOWNER = TUNSETIFF + 2
 
 # Open TUN device file, create tun0
 #
-#  To open a new transient device, put "tun%d" into ioctl() below.
-#   To open a persistent device, use "tun0" or the actual full name.
-#
 #  You can create a persistent device with "openvpn --mktun --dev tun0".
 #   This device will show up on ifconfig, but will have "no link" unless  
 #   it is opened by this or similar script even if you bring it up with
 #   "ifconfig tun0 up". This can be confusing.
-#
-#   IFF_NO_PI is important! Otherwise, tap will add 4 extra bytes per packet, 
-#     and this will confuse Scapy parsing.
 
 def open(ifname = "tun0"):
     tun = os.open("/dev/net/tun", os.O_RDWR)
