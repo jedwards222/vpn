@@ -11,9 +11,9 @@ import socket           # socket.socket, socket.connect
 import select
 # import struct           
 
-# HOSTNAME = '10.10.144.88'
-HOSTNAME = 'flume.cs.dartmouth.edu'
-PORT = 8080
+HOSTNAME = 'wolfe.cloudapp.net'         # Willy Wolfe's Azure Server
+# HOSTNAME = 'flume.cs.dartmouth.edu'   # Flume
+PORT = 5000
 
 # Check to see if a tun iface exists
 iname = 'tun0'
@@ -29,8 +29,6 @@ socket_family = socket.AF_INET
 socket_type = socket.SOCK_STREAM
 s = socket.socket (socket_family, socket_type, 0)
 # Connect to server
-# hostname = "flume.cs.dartmouth.edu"
-# port = 8080
 print("----\nConnecting to " + HOSTNAME + ":" + str(PORT))
 s.connect((HOSTNAME, PORT))
 print("Connected\n----")
@@ -56,11 +54,9 @@ while 1:
     readable, writable, exceptional = select.select(rlist, [], [])
     for r in readable:
         if r == tun:        # Packet is from host, so send it
-            print("Packet captured to be sent!")
             binary_packet = os.read(tun, 2048)
             s.send(binary_packet)
         if r == s:          # Packet is from server, so pass on to host
-            print("Packet received from server!")
             data = s.recv(2048)
             os.write(tun,str(IP(data)))
 
