@@ -9,6 +9,7 @@ import socket
 import select
 import struct
 import scapy.all
+import encryption   # encrypt and decrypt
 
 HOST = ''    # symbolic name meaning all available interfaces
 PORT = 5000  # known port for VPN traffic
@@ -46,7 +47,7 @@ def main():
                 data = sock.recv(IP_MAXPACKET) # get packet from client
                 if data:
                     print "got packet from %s" % sock2addr[sock.fileno()]
-                    process_packet(data, sock2addr, addr2sock, sock) # handle packet     
+                    process_packet(encryption.decrypt(data), sock2addr, addr2sock, sock) # handle packet     
                 else:
                     print "closing connection with %s" % sock2addr[sock.fileno()]
                     # remove from maps
@@ -106,7 +107,7 @@ def handle_ping(data, sock):
 
 def route_packet(data, sock, dst_addr):
     print "  packet routed to %s on socket %d" % (dst_addr, sock.fileno())
-    n = sock.send(data)
+    n = sock.send(encryption.encrypt(data))
     print "  sent %d bytes" % n
 
 if __name__ == "__main__":
