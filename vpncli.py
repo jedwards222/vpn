@@ -9,7 +9,7 @@ import pytun            # pytun.open
 import fakenet          # fakenet.configure_tun
 import socket           # socket.socket, socket.connect
 import select
-# import struct           
+import encryption
 
 HOSTNAME = 'wolfe.cloudapp.net'         # Willy Wolfe's Azure Server
 # HOSTNAME = 'flume.cs.dartmouth.edu'   # Flume
@@ -54,11 +54,11 @@ while 1:
     readable, writable, exceptional = select.select(rlist, [], [])
     for r in readable:
         if r == tun:        # Packet is from host, so send it
-            binary_packet = os.read(tun, 2048)
-            s.send(binary_packet)
+            toSend = encryption.encrypt(str(os.read(tun, 2048)))
+            s.send(toSend)
         if r == s:          # Packet is from server, so pass on to host
             data = s.recv(2048)
-            os.write(tun,str(IP(data)))
+            os.write(tun,encryption.decrypt(str(IP(data))))
 
 # Close the socket connection when exiting - this should maybe go elsewhere
 s.close
