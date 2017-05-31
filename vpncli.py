@@ -58,7 +58,7 @@ while 1:
             s.send(toSend)
         if r == s:          # Packet is from server, so pass on to host
             data = s.recv(2048)
-            os.write(tun,encryption.decrypt(str(IP(data))))
+            os.write(tun,IP(encryption.decrypt(data)))
 
 # Close the socket connection when exiting - this should maybe go elsewhere
 s.close
