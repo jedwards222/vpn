@@ -8,7 +8,7 @@ from itertools import cycle, izip
 import random
 import string
 
-KEY = '3u5hjgniwm30,xw13--'
+KEY = '{$O2*C~kLkpNrYGtas842au392vxm!N.gGjWc}MBg'
 
 # Encryption
 def encrypt(message):

@@ -37,7 +37,8 @@ print("----\nConnecting to " + HOSTNAME + ":" + str(PORT))
 s.connect((HOSTNAME, PORT))
 print("Connected\n----")
 # Server will send your IP address
-newip = s.recv(2048)
+encryptedIP = s.recv(2048)
+newip = encryption.decrypt(encryptedIP)
 print("Your VPN IP Address: " + socket.inet_ntop(socket.AF_INET,newip))
 gw_ip = (socket.inet_ntop(socket.AF_INET,newip))
 
