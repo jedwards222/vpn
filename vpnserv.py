@@ -109,8 +109,7 @@ def handle_ping(data, sock):
 
 def route_packet(data, sock, dst_addr):
     print "  packet routed to %s on socket %d" % (dst_addr, sock.fileno())
-    encrypted = encryption.encrypt(data)
-    n = sock.send(encrypted)
+    n = sock.send(data)
     print "  sent %d bytes" % n
 
 def swap_src_and_dst(packet, layer):
@@ -119,7 +118,6 @@ def swap_src_and_dst(packet, layer):
 def print_hex(data):
     data_hex = ' '.join("{:02x}".format(ord(c)) for c in data)
     print data_hex
-
 
 if __name__ == "__main__":
     main()
