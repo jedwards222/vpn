@@ -69,7 +69,8 @@ def client_setup(avail, sock):
     client_addr = NET_PREFIX + str(avail)
     addr_num = socket.inet_pton(socket.AF_INET, client_addr)
     print " sending %s" % ' '.join("{:02x}".format(ord(c)) for c in addr_num)
-    n = sock.send(addr_num)
+    encrpyted_num = encryption.encrpyt(addr_num)
+    n = sock.send(encrypted_num)
     print " sent %d bytes" % n
     return client_addr, avail+1
 
