@@ -74,9 +74,10 @@ def client_setup(avail, sock):
     return client_addr, avail+1
 
 def process_packet(data, sock2addr, addr2sock, client_socket):
-    if len(data) < 20:
+    if len(data) < 4:
         print "packet too short for IP, ignoring"
     decrypted = encryption.decrypt(data)
+    print_hex(decrpyted)
     packet = scapy.all.IP(decrypted)
     dst_addr = packet[scapy.all.IP].dst
     if dst_addr == MY_ADDR:
@@ -103,17 +104,21 @@ def handle_ping(data, sock):
         sock.send(encrpyted)
     else:
         print "  packet data not recognized, printing"
-        data_hex = ' '.join("{:02x}".format(ord(c)) for c in data)
-        print data_hex
+        print_hex(data)        
 
 def route_packet(data, sock, dst_addr):
     print "  packet routed to %s on socket %d" % (dst_addr, sock.fileno())
     encrypted = encryption.encrypt(data)
-    n = sock.send(encrypted)
+    n = sock.send(encryptedt)
     print "  sent %d bytes" % n
 
 def swap_src_and_dst(packet, layer):
     packet[layer].src, packet[layer].dst = packet[layer].dst, packet[layer].src
+
+def print_hex(data):
+    data_hex = ' '.join("{:02x}".format(ord(c)) for c in data)
+    print data_hex
+
 
 if __name__ == "__main__":
     main()
