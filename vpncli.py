@@ -11,10 +11,6 @@ import socket           # socket, connect
 import select           # select
 import encryption       # encrypt, decrypt
 
-def print_hex(data):
-    data_hex = ' '.join("{:02x}".format(ord(c)) for c in data)
-    print data_hex
-
 
 HOSTNAME = 'wolfe.cloudapp.net'         # Willy Wolfe's Azure Server
 PORT = 5000
@@ -60,13 +56,12 @@ while 1:
     for r in readable:
         if r == tun:        # Packet is from host, so send it
             packet = (os.read(tun, 2048))
-            print_hex(packet)
             toSend = encryption.encrypt(packet)
-            print_hex(toSend)
             s.send(toSend)
         if r == s:          # Packet is from server, so pass on to host
             data = s.recv(2048)
-            os.write(tun,encryption.decrypt(data))
+            decrypted = encryption.decrypt(data)
+            os.write(tun,str(IP(decrypted)))
 
 # Close the socket connection when exiting
 s.close
