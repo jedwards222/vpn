@@ -4,15 +4,15 @@
 # May 2017
 
 from scapy.all import * # scapy commands
-import os               # os.write, os.read
-import pytun            # pytun.open
-import fakenet          # fakenet.configure_tun
-import socket           # socket.socket, socket.connect
-import select
-# import struct           
+import os               # write, read
+import pytun            # open
+import fakenet          # configure_tun
+import socket           # socket, connect
+import select           # select
+import encryption       # encrypt, decrypt
+
 
 HOSTNAME = 'wolfe.cloudapp.net'         # Willy Wolfe's Azure Server
-# HOSTNAME = 'flume.cs.dartmouth.edu'   # Flume
 PORT = 5000
 
 # Check to see if a tun iface exists
@@ -33,7 +33,8 @@ print("----\nConnecting to " + HOSTNAME + ":" + str(PORT))
 s.connect((HOSTNAME, PORT))
 print("Connected\n----")
 # Server will send your IP address
-newip = s.recv(2048)
+encryptedIP = s.recv(2048)
+newip = encryption.decrypt(encryptedIP)
 print("Your VPN IP Address: " + socket.inet_ntop(socket.AF_INET,newip))
 gw_ip = (socket.inet_ntop(socket.AF_INET,newip))
 
@@ -54,11 +55,13 @@ while 1:
     readable, writable, exceptional = select.select(rlist, [], [])
     for r in readable:
         if r == tun:        # Packet is from host, so send it
-            binary_packet = os.read(tun, 2048)
-            s.send(binary_packet)
+            packet = (os.read(tun, 2048))
+            toSend = encryption.encrypt(packet)
+            s.send(toSend)
         if r == s:          # Packet is from server, so pass on to host
             data = s.recv(2048)
-            os.write(tun,str(IP(data)))
+            decrypted = encryption.decrypt(data)
+            os.write(tun,str(IP(decrypted)))
 
-# Close the socket connection when exiting - this should maybe go elsewhere
+# Close the socket connection when exiting
 s.close
