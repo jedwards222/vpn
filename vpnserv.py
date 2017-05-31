@@ -78,7 +78,7 @@ def process_packet(data, sock2addr, addr2sock, client_socket):
     if len(data) < 4:
         print "packet too short for IP, ignoring"
     decrypted = encryption.decrypt(data)
-    print_hex(decrpyted)
+    print_hex(decrypted)
     packet = scapy.all.IP(decrypted)
     dst_addr = packet[scapy.all.IP].dst
     if dst_addr == MY_ADDR:
@@ -110,7 +110,7 @@ def handle_ping(data, sock):
 def route_packet(data, sock, dst_addr):
     print "  packet routed to %s on socket %d" % (dst_addr, sock.fileno())
     encrypted = encryption.encrypt(data)
-    n = sock.send(encryptedt)
+    n = sock.send(encrypted)
     print "  sent %d bytes" % n
 
 def swap_src_and_dst(packet, layer):
