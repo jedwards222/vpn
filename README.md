@@ -6,6 +6,8 @@
 
 We have implemented a VPN server and clients in Python. The server will run on a specified port on `flume.cs.dartmouth.edu`. Clients may then connect to the server via a tunnel interface and join a network with other clients to that server.
 
+We also completed several additional functions for our VPN for extra credit. They are listed at the end of the README.
+
 The code is split into 4 main files:
 
 * `vpnserv.py` starts up the VPN server on `flume.cs.dartmouth.edu` port 8080. It will then accept connections and forward packets from clients using the given VPN client code.
@@ -36,4 +38,12 @@ Testing involves starting the server on `flume.cs.dartmouth.edu`, and running th
 
 2. The client hosts must have root privilege.
 
-3. The client hosts must have scapy installed.
+3. The client hosts and server host must have scapy installed.
+
+## Extra Credit
+
+Two additional features were added on top of the required base functionality for the VPN:
+
+1. Encryption - a simple encryption used a shared secret key is used to hide all traffic between clients and the server. This includes connections between clients that go through the server. 
+
+2. NAT - we implemented most of the features of project option 1 and allowed our VPN clients to connect to the outside internet through our VPN.
