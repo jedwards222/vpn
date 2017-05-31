@@ -9,7 +9,7 @@ import pytun            # open
 import fakenet          # configure_tun
 import socket           # socket, connect
 import select           # select
-import encryption       # encrypt, decrypt, generate_key
+import encryption       # encrypt, decrypt
 
 HOSTNAME = 'wolfe.cloudapp.net'         # Willy Wolfe's Azure Server
 # HOSTNAME = 'flume.cs.dartmouth.edu'   # Flume
@@ -20,15 +20,6 @@ iname = 'tun0'
 ifacelist = os.listdir('/sys/class/net/')
 if not(iname in ifacelist):
     print("please create a tun0 interface using openvpn")
-
-##################################
-# Generate secret key to encrypt #
-##################################
-key = encryption.generate_key(30)
-print("##############################")
-print("########## Your Key ##########")
-print(key)
-print("##############################")
 
 #######################################
 # Set up connection to the VPN server #
