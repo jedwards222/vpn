@@ -69,7 +69,7 @@ def client_setup(avail, sock):
     client_addr = NET_PREFIX + str(avail)
     addr_num = socket.inet_pton(socket.AF_INET, client_addr)
     print " sending %s" % ' '.join("{:02x}".format(ord(c)) for c in addr_num)
-    encrpyted_num = encryption.encrpyt(addr_num)
+    encrypted_num = encryption.encrypt(addr_num)
     n = sock.send(encrypted_num)
     print " sent %d bytes" % n
     return client_addr, avail+1
@@ -78,12 +78,12 @@ def process_packet(data, sock2addr, addr2sock, client_socket):
     if len(data) < 4:
         print "packet too short for IP, ignoring"
     decrypted = encryption.decrypt(data)
-    print_hex(decrypted)
+    # print_hex(decrypted)
     packet = scapy.all.IP(decrypted)
     dst_addr = packet[scapy.all.IP].dst
     if dst_addr == MY_ADDR:
         print " packet intended for server, handling"
-        handle_ping(data, client_socket)
+        handle_ping(decrypted, client_socket)
     else:
 	if dst_addr in addr2sock:
 		sock = addr2sock[dst_addr]
@@ -102,15 +102,14 @@ def handle_ping(data, sock):
         pong[scapy.all.ICMP].chksum = None   # force recalculation
         pong[scapy.all.IP].chksum   = None
         encrypted = encryption.encrypt(pong.build())
-        sock.send(encrpyted)
+        sock.send(encrypted)
     else:
         print "  packet data not recognized, printing"
         print_hex(data)        
 
 def route_packet(data, sock, dst_addr):
     print "  packet routed to %s on socket %d" % (dst_addr, sock.fileno())
-    encrypted = encryption.encrypt(data)
-    n = sock.send(encrypted)
+    n = sock.send(data)
     print "  sent %d bytes" % n
 
 def swap_src_and_dst(packet, layer):
@@ -119,7 +118,6 @@ def swap_src_and_dst(packet, layer):
 def print_hex(data):
     data_hex = ' '.join("{:02x}".format(ord(c)) for c in data)
     print data_hex
-
 
 if __name__ == "__main__":
     main()
