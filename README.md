@@ -10,7 +10,7 @@ We also some additional functions for our VPN for extra credit. They are listed 
 
 The code is split into 4 main files:
 
-* `vpnserv.py` starts up the VPN server on `flume.cs.dartmouth.edu` port 8080. It will then accept connections and forward packets from clients using the given VPN client code.
+* `vpnserv.py` starts up the VPN server on `wolfe.cloudapp.net` port 5000. It will then accept connections and forward packets from clients using the given VPN client code.
 
 * `vpncli.py` starts up the VPN client on the user's host machine. See instructions below for ensuring the host machine is properly configured.
 
