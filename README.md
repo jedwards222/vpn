@@ -4,7 +4,7 @@
 
 ### Overview
 
-We have implemented a VPN server and clients in Python. The server will run on a specified port on `flume.cs.dartmouth.edu`. Clients may then connect to the server via a tunnel interface and join a network with other clients to that server.
+We have implemented a VPN server and clients in Python. The server will run on `wolfe.cloudapp.net` port 5000. Clients may then connect to the server via a tunnel interface and join a network with other clients to that server.
 
 We also some additional functions for our VPN for extra credit. They are listed at the end of the README.
 
@@ -32,7 +32,7 @@ Then you may run `vpncli.py`, and any connections in the `10.10.0.0/24` range wi
 
 ### Testing
 
-Testing involves starting the server on `flume.cs.dartmouth.edu`, and running the client program on at least two separate hosts. The test strategy we implemented is as follows:
+Testing involves starting the server on `wolfe.cloudapp.net:5000`, and running the client program on at least two separate hosts. The test strategy we implemented is as follows:
 
 1. Start VPN server by running `vpnserv.py` on `wolfe.cloudapp.net`.
 2. Start VPN Client on two hosts: they receive the addresses 10.10.0.2 and 10.10.0.3
@@ -48,7 +48,6 @@ Testing involves starting the server on `flume.cs.dartmouth.edu`, and running th
 2. The client hosts and server host must have scapy installed.
 3. No connection to outside internet yet (still working on NAT).
 4. The clients are not remembered when disconnecting and reconnecting.
-5. 
 
 ## Extra Credit
 
