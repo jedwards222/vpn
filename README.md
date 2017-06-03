@@ -41,7 +41,9 @@ Testing involves starting the server on `wolfe.cloudapp.net:5000`, and running t
 5. Both hosts ping the server - successful
 6. Both hosts ssh into each other - successful
 7. Host disconnects and reconnects - is given new network IP address - successful
-8. Used Netcat for testing UDP and TCP
+8. Runnning testserver.sh on one client and testclient.sh on another client to ensure UDP/TCP connectivity 
+9. To run testing scripts use ``testserver.sh <client ip> <port>`` and ``testclient.sh <server ip> <port>``
+
 
 ### Assumptions and Limitations
 
