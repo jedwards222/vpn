@@ -22,5 +22,6 @@ def decrypt(cyphered):
     # print('%s ^ %s = %s' % (cyphered, KEY, message))
     return message
 
+# Unused in current VPN implementation - generates a random key
 def generate_key(size):
     return ''.join(random.SystemRandom().choice(string.ascii_letters + string.punctuation + string.digits) for _ in range(size))
