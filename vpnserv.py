@@ -27,6 +27,7 @@ IP_MAXPACKET = 65535
 read_list = [] # list of open sockets
 sock2addr = {} # dict, fileno:addr_string
 addr2sock = {} # dict, addr_string:socket
+free_ips  = [] # stack of free IPs 
 
 def main():
     """Set up the server, maintain client connections"""
@@ -50,9 +51,11 @@ def main():
                     print "Host: %s" % line.rstrip()            
             elif sock == server_socket: # new connection
                 client_socket, address = server_socket.accept() # accept
-                read_list.append(client_socket)                 # add to list
                 # set up a VM address associated with this client connection
                 client_addr, avail = client_setup(avail, client_socket)
+                if client_addr is None:
+                    cleint_socket.close()
+                read_list.append(client_socket)                 # add to list
                 sock2addr[client_socket.fileno()] = client_addr
                 addr2sock[client_addr] = client_socket
                 print "new connection on socket %d, assigning addr %s" % (
@@ -67,6 +70,8 @@ def main():
                     print "closing connection w/ %s" % sock2addr[sock.fileno()]
                     # remove from maps
                     addr = sock2addr[sock.fileno()]
+                    free = addr.split('.')[4]
+                    free_ips.append(free)
                     del sock2addr[sock.fileno()]
                     del addr2sock[addr]                    
                     sock.close()            # close this connection
@@ -93,11 +98,20 @@ def client_setup(avail, sock):
      sock: the TCP socket of the new client
      addr: the vpn ip to assign
     """
-    client_addr = NET_PREFIX + str(avail)                    # construct addr
+    num = 0
+    ret = avail
+    if len(free_ips) > 0:
+        num = free_ips.pop()
+    elif avail < 256:
+        num = avail
+        ret = avail + 1
+    else:
+        return None, None
+    client_addr = NET_PREFIX + str(num)                      # construct addr
     addr_num = socket.inet_pton(socket.AF_INET, client_addr) # convert to num
     encrypted_num = encryption.encrypt(addr_num)             # encrypt
     sock.send(encrypted_num)                                 # send
-    return client_addr, avail+1
+    return client_addr, ret
 
 def process_packet(data, sock2addr, addr2sock, client_socket):
     """Process an incoming packet
