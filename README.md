@@ -24,7 +24,7 @@ Please grade the master branch, tag: June1. Let us know if there are any issues 
 
 ### Setup and Running
 
-The code is all written in Python, so compilation is unnecessary.
+The code is all written in Python2.7, so compilation is unnecessary.
 To run the server, simply run `vpnserv.py` from the command line. The server code will already be running on our host, Willy's Microsoft Azure server: `will@wolfe.cloudapp.net`
 To start a client, first ensure that the tunnel interface is correctly configured. 
 This is achieved with the command: `openvpn --mktun --dev tun0`. Additionally, the `setup.sh` script can be run to perform this command.
@@ -44,12 +44,15 @@ Testing involves starting the server on `wolfe.cloudapp.net:5000`, and running t
 8. Runnning testserver.sh on one client and testclient.sh on another client to ensure UDP/TCP connectivity 
 9. To run testing scripts use ``testserver.sh <client ip> <port>`` and ``testclient.sh <server ip> <port>``
 
+
 ### Assumptions and Limitations
 
 1. The client hosts and server host must have root privilege.
-2. The client hosts and server host must have scapy installed.
-3. No connection to outside internet yet (still working on NAT).
-4. The clients are not remembered when disconnecting and reconnecting.
+2. Running on linux client only.
+3. Running with Python 2.7
+4. The client hosts and server host must have scapy installed.
+5. No connection to outside internet yet (still working on NAT).
+6. The clients are not remembered when disconnecting and reconnecting.
 
 ## Extra Credit
 
@@ -57,4 +60,4 @@ Two additional features were added on top of the required base functionality for
 
 1. Encryption - a simple encryption using a shared secret key is used to hide all traffic between clients and the server. This includes connections between clients that go through the server. The code used by encryption lives in `encryption.py`
 
-2. NAT (UNFINISHED) - we started to implement most of the features of project option 1 and allowed our VPN clients to connect to the outside internet through our VPN. This feature is still in a separate branch, and will be worked on more for Sergey to grade by the June 5th deadline.
+2. NAT (UNFINISHED) - we started to implement most of the features of project option 1 and allowed our VPN clients to connect to the outside internet through our VPN. This feature is still in a separate branch, and will be worked on more for Sergey to grade by the June 5th deadline. See notes on our [NAT configuration](https://gitlab.cs.dartmouth.edu/jgedwards/cs60project/blob/nat/CONFIGURATION.md)
