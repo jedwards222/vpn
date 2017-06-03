@@ -60,4 +60,4 @@ Two additional features were added on top of the required base functionality for
 
 1. Encryption - a simple encryption using a shared secret key is used to hide all traffic between clients and the server. This includes connections between clients that go through the server. The code used by encryption lives in `encryption.py`
 
-2. NAT (UNFINISHED) - we started to implement most of the features of project option 1 and allowed our VPN clients to connect to the outside internet through our VPN. This feature is still in a separate branch, and will be worked on more for Sergey to grade by the June 5th deadline.
+2. NAT (UNFINISHED) - we started to implement most of the features of project option 1 and allowed our VPN clients to connect to the outside internet through our VPN. This feature is still in a separate branch, and will be worked on more for Sergey to grade by the June 5th deadline. See notes on our [NAT configuration](https://gitlab.cs.dartmouth.edu/jgedwards/cs60project/blob/nat/CONFIGURATION.md)
