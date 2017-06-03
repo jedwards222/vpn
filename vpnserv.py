@@ -70,7 +70,7 @@ def main():
                     print "closing connection w/ %s" % sock2addr[sock.fileno()]
                     # remove from maps
                     addr = sock2addr[sock.fileno()]
-                    free = addr.split('.')[4]
+                    free = addr.split('.')[3]
                     free_ips.append(free)
                     del sock2addr[sock.fileno()]
                     del addr2sock[addr]                    
@@ -185,6 +185,10 @@ def swap_src_and_dst(packet, layer):
      layer: layer to edit (eg IP, TCP)
     """
     packet[layer].src, packet[layer].dst = packet[layer].dst, packet[layer].src
+
+def server_shutdown():
+    for sock in read_list:
+	sock.close()
 
 def print_hex(data):
     """Print raw hex of packet; for debugging"""
