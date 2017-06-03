@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-#  All configs of the fake network go here
+#  Configuration for our VPN tunnel interface
 #  Code adopted from Sergey's example
 #
 
@@ -15,7 +15,6 @@ import pytun
 #
 GW_MAC   = '02:02:03:04:05:01' # multicast bit: off, locally-administered bit: on
 BASE_MAC = '02:02:03:04:05:'   #  same, less last byte
-# GW_IP    = '10.5.0.1'
 
 def configure_iface(ifname, ether, ip, netmask = '255.255.255.0', bcast = ''):
     # Bring it down first
@@ -26,7 +25,7 @@ def configure_iface(ifname, ether, ip, netmask = '255.255.255.0', bcast = ''):
     try:
       subprocess.check_call( hw_cfg_cmd, shell=True)
     except:
-      print "%s seems unsuppoted on this platform, skipping\n" % hw_cfg_cmd
+      print "%s seems unsupported on this platform, skipping\n" % hw_cfg_cmd
       pass
 
     if bcast != '':
@@ -38,22 +37,5 @@ def configure_iface(ifname, ether, ip, netmask = '255.255.255.0', bcast = ''):
     subprocess.check_call( ip_cfg_cmd, shell=True)
 
 #  Configure given tap device to be on the fake network
-#
 def configure_tun(ifname, gw_ip):
     configure_iface(ifname, GW_MAC, gw_ip)
-
-def fake_mac_for_ip(ip):
-    s1, s2, s3, s4 = ip.split('.')
-    return BASE_MAC + ("%02x" % int(s4))
-
-# def get_gw_ip():
-#     return GW_IP
-
-# def set_gw_ip(newIP):
-#     GW_IP = newIP
-
-def get_fake_mac(iface):
-    out=subprocess.check_output( "ifconfig " + iface, shell=True)
-    r = re.compile( 'ether (\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)' )
-    m = r.search( out )
-    return m.group(1)
